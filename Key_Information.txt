@@ -1,0 +1,16 @@
+Twitter
+
+Consumer Key (API Key)		Q9GMxmNE3X0WHjNd8O6g4zVO5
+Consumer Secret (API Secret)	5RmFz3HtVhnsm0X7Wv7fFYPZVi6Eb1gLdvM0iALVO9sjEvWBo8
+Access Level			Read and write (modify app permissions)
+Owner				CarterECE4564
+Owner ID			961625544872878085
+Access Token			961625544872878085-86aUV4QHTjNHvJZKb4MWnDinYQ7rrdP
+Access Token Secret		18i5ClqSiKpyLAJihqrlj4mDrH0NnbqWgdpnVszC7mrCl
+
+WolframAlpha
+
+APP NAME: ECE4564_T11
+APPID: 4L8UXR-PXJL7T2YGG
+USAGE TYPE: Personal/Non-commercial Only
+
