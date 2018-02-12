@@ -1,9 +1,14 @@
+
+
+#!/usr/bin/env python3
 import wolframalpha
 import argparse
 import socket
 import hashlib
 import pickle
 import serverKeys
+from subprocess import call
+
 from cryptography.fernet import Fernet
 
 # Descriptive defines to use in the code
@@ -13,16 +18,23 @@ KEY_NUM = 0
 QUESTION_NUM = 1
 HASH_NUM = 2
 
+# These are the commands for speaking a string
+cmd_beg= 'espeak '
+cmd_end= ' 2>/dev/null' # To dump the std errors to /dev/null
 
-def get_ip_address():
-    '''
-    This is used to find the IP address of the PI connected to the network, since the server IP can
-    change whenever, and I don't want to have to change my code.
-    :return:
-    '''
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    return s.getsockname()[0]
+
+# The library, and method of calling the speak is from https://www.dexterindustries.com/howto/make-your-raspberry-pi-speak/
+def speak_string(speak_me):
+	"""
+	This what speaks the text that was spoken
+	"""
+	# Print what I am doing here
+	print("[Checkpoint] Speaking: " + speak_me)
+
+	#Rename the stuff hrere
+	speak_me = speak_me.replace(' ', '_')
+	# Speak the word and then print
+	call([cmd_beg+speak_me+cmd_end], shell=True)
 
 
 def parse_question_message(raw_data, fernet_key_local):
@@ -124,17 +136,17 @@ parser.add_argument("-b", "--BACKLOG_SIZE", help="This is the backlog size of th
 parser.add_argument("-z", "--SOCKET_SIZE", help="This is the backlog size of the socket I believe", type=int)
 
 # This gets the arguments from the user, access them through SERVER_PORT, etc
-args = 0.0.0.0 # parser.parse_args()
+args = parser.parse_args()
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Get the IP address of the wlan to run on
-address = get_ip_address()
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# Listens on all addresses for networks
+address = "0.0.0.0" 
 
 # Bind the socket to the port
-server_address = ('localhost', args.SERVER_PORT)
-print('starting up on {} port {}'.format(*server_address))
+server_address = (address, args.SERVER_PORT)
+print('[Checkpoint] Created socket at {} on port {}'.format(*server_address))
 sock.bind(server_address)
 
 # Listen for incoming connections, with the specified number of connections
@@ -142,15 +154,16 @@ sock.listen(args.BACKLOG_SIZE)
 
 while True:
     # Wait for a connection
-    print('waiting for a connection')
+    print('[Checkpoint] Listening for client connections')
     connection, client_address = sock.accept()
     try:
-        print('connection from', client_address)
+        print('[Checkpoint] Accepted client connection from {} on port {}'.format(*client_address))
         #Wait fo receive data on the socket
         data = connection.recv(args.SOCKET_SIZE)
         # parse the data from the client
         question = parse_question_message(data, fernet_key)
-
+	# Speak the string real quick
+        speak_string(question)
         #Get the answer from wolfram alpha
         answer = get_answer_wolfram(question)
         if answer != None:
