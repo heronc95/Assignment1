@@ -124,7 +124,7 @@ parser.add_argument("-b", "--BACKLOG_SIZE", help="This is the backlog size of th
 parser.add_argument("-z", "--SOCKET_SIZE", help="This is the backlog size of the socket I believe", type=int)
 
 # This gets the arguments from the user, access them through SERVER_PORT, etc
-args = parser.parse_args()
+args = 0.0.0.0 # parser.parse_args()
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
