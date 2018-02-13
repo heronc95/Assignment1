@@ -56,11 +56,14 @@ def parse_question_message(raw_data, fernet_key_local):
     hash_checker.update(data_tuple[QUESTION_NUM])
     received_hash = hash_checker.digest()
     if received_hash == data_tuple[HASH_NUM]:
+        print('[Checkpoint] Checksum is VALID')
         # Now we can decrypt the message that was sent
         # First get the key all set
         decrypter = Fernet(fernet_key_local[0])
         # Now decrypt the message
         question_bytes = bytes(decrypter.decrypt(data_tuple[QUESTION_NUM]))
+        print('[Checkpoint] Decrypt: Using Key: ' + fernet_key_local[0] + ' | Plaintext: ' + question_bytes)
+
         #Now return the string that was sent
         return str(bytes.decode(question_bytes))
     else:
@@ -81,11 +84,11 @@ def create_message_packet(string_message, key):
     f = Fernet(key)
     hasher = hashlib.md5()
     encrypted_question = f.encrypt(string_message.encode())
-
+    print('[Checkpoint] Encrypt: Generated Key: ' + key + ' | Ciphertext: ' + encrypted_question)
     # Get the md5 hash of the question
     hasher.update(encrypted_question)
     hash = hasher.digest()
-
+    print('[Checkpoint] Generated MD5 Checksum: ' + hash)
     # This is the tuple of all the packets, and just need to pickle it
     tuple_to_return = (encrypted_question, hash)
 
@@ -104,6 +107,7 @@ def get_answer_wolfram(user_query):
         client = wolframalpha.Client(appId)
 
         # This is where I ask the user to send me the question
+        print('[Checkpoint] Sending question to Wolframalpha: ' + user_query)
         res = client.query(user_query)
         if res['@success'] == 'true':
             try:
@@ -113,6 +117,7 @@ def get_answer_wolfram(user_query):
 
                 # Now get the plaintext response from the subpod from that with the result, so many dicts
                 text_result = result_pod['subpod']['plaintext']
+                print('[Checkpoint] Received answer from Wolframalpha: ' + text_result)
                 return text_result
 
             except KeyError:
@@ -160,9 +165,10 @@ while True:
         print('[Checkpoint] Accepted client connection from {} on port {}'.format(*client_address))
         #Wait fo receive data on the socket
         data = connection.recv(args.SOCKET_SIZE)
+        print('[Checkpoint] Recieved data:' + data)
         # parse the data from the client
         question = parse_question_message(data, fernet_key)
-	# Speak the string real quick
+        # Speak the string real quick
         speak_string(question)
         #Get the answer from wolfram alpha
         answer = get_answer_wolfram(question)
@@ -170,7 +176,9 @@ while True:
             # Make the answer payload back to the client here
             response_tuple = tuple(create_message_packet(answer, fernet_key[0]))
             # Serialize and send to the client
-            connection.sendall(pickle.dumps(response_tuple))
+            send_data = pickle.dumps(response_tuple)
+            print('[Checkpoint] Sending data: ' + send_data)
+            connection.sendall(send_data)
 
 
 
