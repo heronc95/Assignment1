@@ -62,7 +62,7 @@ def parse_question_message(raw_data, fernet_key_local):
         decrypter = Fernet(fernet_key_local[0])
         # Now decrypt the message
         question_bytes = bytes(decrypter.decrypt(data_tuple[QUESTION_NUM]))
-        print('[Checkpoint] Decrypt: Using Key: ' + fernet_key_local[0] + ' | Plaintext: ' + question_bytes)
+        print('[Checkpoint] Decrypt: Using Key: ' + str(fernet_key_local[0]) + ' | Plaintext: ' + str(question_bytes))
 
         #Now return the string that was sent
         return str(bytes.decode(question_bytes))
@@ -84,11 +84,11 @@ def create_message_packet(string_message, key):
     f = Fernet(key)
     hasher = hashlib.md5()
     encrypted_question = f.encrypt(string_message.encode())
-    print('[Checkpoint] Encrypt: Generated Key: ' + key + ' | Ciphertext: ' + encrypted_question)
+    print('[Checkpoint] Encrypt: Generated Key: ' + str(key) + ' | Ciphertext: ' + str(encrypted_question))
     # Get the md5 hash of the question
     hasher.update(encrypted_question)
     hash = hasher.digest()
-    print('[Checkpoint] Generated MD5 Checksum: ' + hash)
+    print('[Checkpoint] Generated MD5 Checksum: ' + str(hash))
     # This is the tuple of all the packets, and just need to pickle it
     tuple_to_return = (encrypted_question, hash)
 
@@ -165,7 +165,7 @@ while True:
         print('[Checkpoint] Accepted client connection from {} on port {}'.format(*client_address))
         #Wait fo receive data on the socket
         data = connection.recv(args.SOCKET_SIZE)
-        print('[Checkpoint] Recieved data:' + data)
+        print('[Checkpoint] Recieved data:' + str(data))
         # parse the data from the client
         question = parse_question_message(data, fernet_key)
         # Speak the string real quick
@@ -177,7 +177,7 @@ while True:
             response_tuple = tuple(create_message_packet(answer, fernet_key[0]))
             # Serialize and send to the client
             send_data = pickle.dumps(response_tuple)
-            print('[Checkpoint] Sending data: ' + send_data)
+            print('[Checkpoint] Sending data: ' + str(send_data))
             connection.sendall(send_data)
 
 
