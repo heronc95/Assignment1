@@ -101,29 +101,30 @@ def get_answer_wolfram(user_query):
         :return:
         '''
 
-        appId = serverKeys.wolfram_alpha_appid   #= "TLRHJQ-Q4XKHKPXL9"
+        appId = serverKeys.wolfram_alpha_appid
         client = wolframalpha.Client(appId)
+        error_msg = "Wolfram Alpha said it couldn't find the answer"
+        try:
+            # This is where I ask the user to send me the question
+            print('[Checkpoint] Sending question to Wolframalpha: ' + user_query)
+            res = client.query(user_query)
+            if res['@success'] == 'true':
+                try:
+                    # Result pod is a dictionary that holds the result, have to get that from a list
+                    result_pod = list(res.pods)
+                    result_pod = dict(result_pod[RESULT_NUM_WOLFRAM])
 
-        # This is where I ask the user to send me the question
-        print('[Checkpoint] Sending question to Wolframalpha: ' + user_query)
-        res = client.query(user_query)
-        if res['@success'] == 'true':
-            try:
-                # Result pod is a dictionary that holds the result, have to get that from a list
-                result_pod = list(res.pods)
-                result_pod = dict(result_pod[RESULT_NUM_WOLFRAM])
+                    # Now get the plaintext response from the subpod from that with the result, so many dicts
+                    text_result = result_pod['subpod']['plaintext']
+                    print('[Checkpoint] Received answer from Wolframalpha: ' + text_result)
+                    return text_result
 
-                # Now get the plaintext response from the subpod from that with the result, so many dicts
-                text_result = result_pod['subpod']['plaintext']
-                print('[Checkpoint] Received answer from Wolframalpha: ' + text_result)
-                return text_result
+                except KeyError:
+                    print("There was an error in looking up the keys in the subpods");
+        except:
+            print(error_msg + " <- returning that.")
 
-            except KeyError:
-                print("There was an error in looking up the keys in the subpods");
-        else:
-            # Wolfram couldn't find an answer
-            print("Wolfram Alpha said it couldn't find the answer")
-        return None
+        return error_msg
 
 
 
