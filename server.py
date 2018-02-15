@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python3
 import wolframalpha
 import argparse
@@ -103,7 +101,7 @@ def get_answer_wolfram(user_query):
         :return:
         '''
 
-        appId = "TLRHJQ-Q4XKHKPXL9"
+        appId = serverKeys.wolfram_alpha_appid   #= "TLRHJQ-Q4XKHKPXL9"
         client = wolframalpha.Client(appId)
 
         # This is where I ask the user to send me the question
@@ -157,12 +155,14 @@ sock.bind(server_address)
 # Listen for incoming connections, with the specified number of connections
 sock.listen(args.BACKLOG_SIZE)
 
-while True:
-    # Wait for a connection
-    print('[Checkpoint] Listening for client connections')
-    connection, client_address = sock.accept()
-    try:
-        print('[Checkpoint] Accepted client connection from {} on port {}'.format(*client_address))
+
+# Wait for a connection
+print('[Checkpoint] Listening for client connections')
+connection, client_address = sock.accept()
+print('[Checkpoint] Accepted client connection from {} on port {}'.format(*client_address))
+
+try:
+    while True:
         #Wait fo receive data on the socket
         data = connection.recv(args.SOCKET_SIZE)
         print('[Checkpoint] Recieved data:' + str(data))
@@ -180,10 +180,8 @@ while True:
             print('[Checkpoint] Sending data: ' + str(send_data))
             connection.sendall(send_data)
 
-
-
-    finally:
-        # Clean up the connection
-        connection.close()
+finally:
+    # Clean up the connection
+    connection.close()
 
 
