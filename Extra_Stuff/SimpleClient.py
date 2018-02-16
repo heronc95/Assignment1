@@ -68,27 +68,26 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 fernet_last_sent = [None]
 
 # Connect the socket to the port where the server is listening
-server_address = ('localhost', 10000)
+server_address = ('172.30.115.104', 5803)
 print('connecting to {} port {}'.format(*server_address))
 sock.connect(server_address)
 
-
-#Make the encyption stuff here
-tup = create_message_packet("How big is jupiter?", fernet_last_sent)
-
-#Dump the message into pickle
-transmit_me = pickle.dumps(tup)
-
-
 try:
+    while 1:
+        # Make the encyption stuff here
+        message = input("Please give me the question")
+        tup = create_message_packet(message, fernet_last_sent)
 
-    # Send data
-    sock.sendall(transmit_me)
+        # Dump the message into pickle
+        transmit_me = pickle.dumps(tup)
+        # Send data
+        sock.sendall(transmit_me)
 
-    data = sock.recv(500)
+        data = sock.recv(1024)
 
-    answer = parse_question_message(data, fernet_last_sent[0])
-    print("I got this: " + answer)
+        answer = parse_question_message(data, fernet_last_sent[0])
+        print("I got this: " + answer)
+
 finally:
     print('closing socket')
     sock.close()
