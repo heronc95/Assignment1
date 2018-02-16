@@ -23,9 +23,8 @@ HASH_NUM = 1
 #Global variable to help with the functions
 args = None
 def speak_string(speakme):
-    
-    speakme = speakme.replace(' ', '_')
     print("[Checkpoint] Speaking: " + speakme)
+    speakme = speakme.replace(' ', '_')
     call([cmd_beg+speakme+cmd_end], shell=True)
 
 def parse_question_message(raw_data, decrypt_key):
@@ -50,12 +49,12 @@ def parse_question_message(raw_data, decrypt_key):
         decrypter = Fernet(decrypt_key)
         # Now decrypt the message
         answer = bytes(decrypter.decrypt(data_tuple[QUESTION_NUM]))
-        print("[Checkpoint] Decrypt: Using Key: " + str(decrypt_key) + " | Plaintext: " + answer)
+        print("[Checkpoint] Decrypt: Using Key: " + str(decrypt_key) + " | Plaintext: " + str(answer))
 
         return str(bytes.decode(answer))
     else:
         # Then the hash was not good and should not let it decode
-        return None
+        return ""
 
 def create_message_packet(string_message, fernet_key_last_sent):
     '''
@@ -75,7 +74,7 @@ def create_message_packet(string_message, fernet_key_last_sent):
     # Get the md5 hash of the question
     hasher.update(encrypted_question)
     hash = hasher.digest()
-    print("[Checkpoint] Generated MD5 Checksum:: " + hash)
+    print("[Checkpoint] Generated MD5 Checksum:: " + str(hash))
 
     tuple_to_return = (key, encrypted_question, hash)
     return tuple_to_return
@@ -107,13 +106,13 @@ def get_tweet(tweet):
 
     # Dump the message into pickle
     transmit_me = pickle.dumps(tup)
-    print("[Checkpoint] Sending data: " + transmit_me)
+    print("[Checkpoint] Sending data: " + str(transmit_me))
     # Send data
     sock.sendall(transmit_me)
 
     # Recieve from the socket
     data = sock.recv(args.SOCKET_SIZE)
-    print("[Checkpoint] Received data: " + data)
+    print("[Checkpoint] Received data: " + str(data))
 
     answer = parse_question_message(data, fernet_last_sent[0])
 
@@ -139,10 +138,10 @@ def strip_all_entities(text):
 if __name__ == '__main__':
     # Setting up the argument parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--SERVER_IP", type=string)
+    parser.add_argument("-s", "--SERVER_IP", type=str)
     parser.add_argument("-p", "--SERVER_PORT", type=int)
     parser.add_argument("-z", "--SOCKET_SIZE", type=int)
-    parser.add_argument("-t", "--HASHTAG", type=string)
+    parser.add_argument("-t", "--HASHTAG", type=str)
 
     # This gets the arguments from the user, access them through SERVER_PORT, etc
     args = parser.parse_args()
